@@ -1,19 +1,15 @@
 import { sql } from '@vercel/postgres';
 import {
   CustomerField,
-  CustomersTable,
+  CustomersTableType,
   InvoiceForm,
   InvoicesTable,
   LatestInvoiceRaw,
-  User,
   Revenue,
 } from './definitions';
 import { formatCurrency } from './utils';
 
 export async function fetchRevenue() {
-  // Add noStore() here prevent the response from being cached.
-  // This is equivalent to in fetch(..., {cache: 'no-store'}).
-
   try {
     // Artificially delay a response for demo purposes.
     // Don't do this in production :)
@@ -88,7 +84,10 @@ export async function fetchCardData() {
 }
 
 const ITEMS_PER_PAGE = 6;
-export async function fetchFilteredInvoices(query: string, currentPage: number) {
+export async function fetchFilteredInvoices(
+  query: string,
+  currentPage: number,
+) {
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   try {
@@ -186,7 +185,7 @@ export async function fetchCustomers() {
 
 export async function fetchFilteredCustomers(query: string) {
   try {
-    const data = await sql<CustomersTable>`
+    const data = await sql<CustomersTableType>`
 		SELECT
 		  customers.id,
 		  customers.name,
@@ -214,15 +213,5 @@ export async function fetchFilteredCustomers(query: string) {
   } catch (err) {
     console.error('Database Error:', err);
     throw new Error('Failed to fetch customer table.');
-  }
-}
-
-export async function getUser(email: string) {
-  try {
-    const user = await sql`SELECT * FROM users WHERE email=${email}`;
-    return user.rows[0] as User;
-  } catch (error) {
-    console.error('Failed to fetch user:', error);
-    throw new Error('Failed to fetch user.');
   }
 }
